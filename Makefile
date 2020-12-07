@@ -4,5 +4,6 @@
 .FORCE:
 Makefile: .FORCE
 	qmake
+	@echo "watch this:"
 # note: we don't need to call `make` again in this rule
 #  magic!
