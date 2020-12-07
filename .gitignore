@@ -1,3 +1,5 @@
 Makefile
 .qmake.stash
 *.gch
+a.out
+*.o
