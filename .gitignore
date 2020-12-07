@@ -3,3 +3,4 @@ Makefile
 *.gch
 a.out
 *.o
+moc_*.cpp

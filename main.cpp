@@ -1,20 +1,7 @@
-#include <QFileSystemWatcher>
-#include <QApplication>
-#include <QMainWindow>
-#include <QClipboard>
-#include <QScrollArea>
-#include <QImageReader>
-#include <stdio.h>
+#include "header.hpp"
+;
 
-#include <lua5.3/lua.hpp>
-
-QScrollArea* scroll;
-QLabel* label;
-QMainWindow* window;
-QImage* image;
-QImage image2;
-
-void setImage(QImage& newImage) {
+/*void setImage(QImage& newImage) {
 	image = new QImage(newImage);
 	label->setPixmap(QPixmap::fromImage(*image));
 	label->adjustSize();
@@ -69,32 +56,95 @@ void runLua(const char* filename) {
 fail:
 	lua_pop(L, 1);
 	lua_close(L);
-}
+	}*/
 
-static int lf_mapAll(lua_State *L) {
-	int n = lua_gettop(L);    /* number of arguments */
+/*static int lf_mapAll(lua_State* L) {
+	int n = lua_gettop(L);   
 	if (n != 1) {
 		lua_pushliteral(L, "incorrect arguments");
 		lua_error(L);
 	}
 	return 0;
+}*/
+
+MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()}, fileDialog {this} {
+	scrollArea.setBackgroundRole(QPalette::Dark);
+	setCentralWidget(&scrollArea);
+	
+	imageLabel.setBackgroundRole(QPalette::Base);
+	imageLabel.setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+	imageLabel.setScaledContents(true);
+	scrollArea.setWidget(&imageLabel);
+
+	fileMenu = menuBar()->addMenu(tr("&File"));
+	openAct = fileMenu->addAction(tr("&Open..."), this, &MyWindow::onOpen);
+	openAct->setShortcut(tr("Ctrl+O"));
+	saveAsAct = fileMenu->addAction(tr("&Save As..."), this, &MyWindow::onSaveAs);
+	saveAsAct->setShortcut(tr("Ctrl+S"));
+
+	fileMenu->addSeparator();
+	copyAct = fileMenu->addAction(tr("&Copy"), this, &MyWindow::onCopy);
+	copyAct->setShortcut(tr("Ctrl+C"));
+	pasteAct = fileMenu->addAction(tr("&Paste"), this, &MyWindow::onPaste);
+	pasteAct->setShortcut(tr("Ctrl+V"));
 }
 
-int main(int argc, char **argv) {
-	QApplication app {argc, argv};
-	window = new QMainWindow {};
-	
-	scroll = new QScrollArea();
-	scroll->setBackgroundRole(QPalette::Dark);
-	scroll->setVisible(false);
-	window->setCentralWidget(scroll);
-	
-	label = new QLabel();
-	label->setBackgroundRole(QPalette::Base);
-	label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-	label->setScaledContents(true);
-	scroll->setWidget(label);
+void MyWindow::onSaveAs() {
+	fileDialog.setFileMode(QFileDialog::AnyFile);
+	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+	if (fileDialog.exec() != QDialog::Accepted) return;
+	saveAsFile(fileDialog.selectedFiles().first());
+}
 
+void MyWindow::onOpen() {
+	fileDialog.setFileMode(QFileDialog::ExistingFile);
+	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+	if (fileDialog.exec() != QDialog::Accepted) return;
+	loadFile(fileDialog.selectedFiles().first());
+}
+
+void MyWindow::onCopy() {
+	clipboard->setImage(image);
+}
+
+void MyWindow::onPaste() {
+	if (const QMimeData* mimeData = clipboard->mimeData())
+		if (mimeData->hasImage())
+			setImage(qvariant_cast<QImage>(mimeData->imageData()));
+}
+
+
+bool MyWindow::saveAsFile(const QString name) {
+	QImageWriter writer {name};
+	if (!writer.write(image)) {
+		QMessageBox::warning(this, "Save Error", tr("Can't save file: %1").arg(writer.errorString()));
+		return false;
+	}
+	return true;
+}
+bool MyWindow::loadFile(const QString name) {
+	QImageReader reader {name};
+	reader.setAutoTransform(true); //handle rotation metadata
+	setImage(reader.read());
+	if (image.isNull()) {
+		QMessageBox::warning(this, "Load Error", tr("Can't load file: %1").arg(reader.errorString()));
+		return false;
+	}
+	return true;
+}
+
+void MyWindow::setImage(const QImage &newImage) {
+	image = newImage;
+	imageLabel.setPixmap(QPixmap::fromImage(image));
+	imageLabel.adjustSize();
+}
+
+int main(int argc, char** argv) {
+	QApplication app {argc, argv};
+	MyWindow window {};
+	window.show(); //snow
+	return app.exec();
+	/*
 	loadFile(argv[1]);
 
 	QFileSystemWatcher watcher;
@@ -109,5 +159,5 @@ int main(int argc, char **argv) {
 	setImage(*image);
 
 	window->show();
-	return app.exec();
+	return app.exec();*/
 }
