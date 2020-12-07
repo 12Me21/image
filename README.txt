@@ -3,5 +3,8 @@ Dependencies:
 - Lua 5.3
 (apt packages: `qt5-common`, `liblua5.3`)
 
-Run `make` (will be slow the first time!).
-Generates `a.out`.
+run `make` to compile (will be slow the first time!).
+
+run with `./a.out <imageFile> <luaFile>`. ex: `./a.out test.png script.lua`
+
+see example `script.lua`
