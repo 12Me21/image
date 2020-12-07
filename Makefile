@@ -4,4 +4,5 @@
 .FORCE:
 Makefile: .FORCE
 	qmake
-	make
+# note: we don't need to call `make` again in this rule
+#  magic!
