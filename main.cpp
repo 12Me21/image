@@ -1,7 +1,6 @@
 #include <QFileSystemWatcher>
 #include <QApplication>
 #include <QMainWindow>
-#include <QPushButton>
 #include <QClipboard>
 #include <QScrollArea>
 #include <QImageReader>

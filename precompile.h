@@ -33,27 +33,24 @@
 #include <QPointer>
 #include <QColor>
 
+#include <QFileSystemWatcher>
+#include <QImageReader>
+#include <QScrollArea>
+
 #include <string>
-#include <set>
-#include <map>
 #include <memory>
 #include <vector>
-#include <unordered_map>
 #include <array>
 #include <bitset>
-#include <initializer_list>
-#include <functional>
-#include <algorithm>
-#include <numeric>
-#include <iterator>
-#include <type_traits>
 #include <cmath>
 #include <cassert>
 #include <cfloat>
-#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <mutex>
-#include <thread>
-#include <condition_variable>
+
+#include <QMainWindow>
+#include <QClipboard>
+#include <stdio.h>
+
+#include <lua5.3/lua.hpp>
