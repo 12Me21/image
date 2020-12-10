@@ -98,14 +98,30 @@ MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()} {
 	windowAct->setShortcut(tr("Ctrl+N"));
 }
 
-void MyWindow::onWindow() {
+void timer(const char *message = NULL) {
+	//ow
 	using namespace std;
 	using namespace chrono;
-	auto start = high_resolution_clock::now(); 
+	static time_point<high_resolution_clock, nanoseconds> start {nanoseconds(-1)};
+	if (start.time_since_epoch().count() < 0) {
+		if (message)
+			printf("%s",message);
+		start = high_resolution_clock::now();
+	} else {
+		auto x = high_resolution_clock::now().time_since_epoch().count() - start.time_since_epoch().count();
+		if (message)
+			printf("%s",message);
+		printf(" %.3fms\n", (float)x/1000000);
+		start = (typeof(start))nanoseconds(-1);
+		
+	}
+}
+
+void MyWindow::onWindow() {
+	timer();
 	auto x = new MyWindow();
 	x->show();
-	auto duration = duration_cast<microseconds>(high_resolution_clock::now() - start); 
-	cout << duration.count() << endl; 
+	timer("window created");
 }
 
 void MyWindow::onSaveAs() {
@@ -159,15 +175,18 @@ void MyWindow::setImage(const QImage &newImage) {
 }
 
 int main(int argc, char** argv) {
-	puts("1");
+	timer();
 	QApplication app {argc, argv};
-	puts("2");
+	timer("App created");
+
+	timer();
 	MyWindow window {};
-	puts("3");
+	timer("Initial window created");
+
+	timer();
 	window.show(); //snow
-	puts("4");
-	puts("6");
-	//exit(0);
+	timer("initial window shown");
+	
 	return app.exec();
 	/*
 	loadFile(argv[1]);
