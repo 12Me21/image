@@ -10,6 +10,8 @@
 #include <QScrollArea>
 
 #include <stdio.h>
+#include <chrono>
+#include <iostream>
 
 #include <lua5.3/lua.hpp>
 

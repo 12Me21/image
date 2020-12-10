@@ -99,8 +99,13 @@ MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()} {
 }
 
 void MyWindow::onWindow() {
+	using namespace std;
+	using namespace chrono;
+	auto start = high_resolution_clock::now(); 
 	auto x = new MyWindow();
 	x->show();
+	auto duration = duration_cast<microseconds>(high_resolution_clock::now() - start); 
+	cout << duration.count() << endl; 
 }
 
 void MyWindow::onSaveAs() {
