@@ -45,6 +45,8 @@ private:
 	void onCopy();
 	QAction* pasteAct;
 	void onPaste();
+	QAction* windowAct;
+	void onWindow();
 };
 
 class Lua {

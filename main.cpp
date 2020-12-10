@@ -67,8 +67,9 @@ fail:
 	return 0;
 }*/
 
+
 MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()} {
-	fileDialog = new QFileDialog(this);
+	//fileDialog = new QFileDialog(this);
 	scrollArea = new QScrollArea();
 	imageLabel = new QLabel();
 	
@@ -91,6 +92,15 @@ MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()} {
 	copyAct->setShortcut(tr("Ctrl+C"));
 	pasteAct = fileMenu->addAction(tr("&Paste"), this, &MyWindow::onPaste);
 	pasteAct->setShortcut(tr("Ctrl+V"));
+
+	fileMenu->addSeparator();
+	windowAct = fileMenu->addAction(tr("&Window"), this, &MyWindow::onWindow);
+	windowAct->setShortcut(tr("Ctrl+N"));
+}
+
+void MyWindow::onWindow() {
+	auto x = new MyWindow();
+	x->show();
 }
 
 void MyWindow::onSaveAs() {
@@ -151,6 +161,7 @@ int main(int argc, char** argv) {
 	puts("3");
 	window.show(); //snow
 	puts("4");
+	puts("6");
 	//exit(0);
 	return app.exec();
 	/*
