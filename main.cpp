@@ -67,14 +67,18 @@ fail:
 	return 0;
 }*/
 
-MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()}, fileDialog {this} {
-	scrollArea.setBackgroundRole(QPalette::Dark);
-	setCentralWidget(&scrollArea);
+MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()} {
+	fileDialog = new QFileDialog(this);
+	scrollArea = new QScrollArea();
+	imageLabel = new QLabel();
 	
-	imageLabel.setBackgroundRole(QPalette::Base);
-	imageLabel.setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-	imageLabel.setScaledContents(true);
-	scrollArea.setWidget(&imageLabel);
+	scrollArea->setBackgroundRole(QPalette::Dark);
+	setCentralWidget(scrollArea);
+	
+	imageLabel->setBackgroundRole(QPalette::Base);
+	imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+	imageLabel->setScaledContents(true);
+	scrollArea->setWidget(imageLabel);
 
 	fileMenu = menuBar()->addMenu(tr("&File"));
 	openAct = fileMenu->addAction(tr("&Open..."), this, &MyWindow::onOpen);
@@ -90,17 +94,17 @@ MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()}, fileDialog {thi
 }
 
 void MyWindow::onSaveAs() {
-	fileDialog.setFileMode(QFileDialog::AnyFile);
-	fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-	if (fileDialog.exec() != QDialog::Accepted) return;
-	saveAsFile(fileDialog.selectedFiles().first());
+	fileDialog->setFileMode(QFileDialog::AnyFile);
+	fileDialog->setAcceptMode(QFileDialog::AcceptSave);
+	if (fileDialog->exec() != QDialog::Accepted) return;
+	saveAsFile(fileDialog->selectedFiles().first());
 }
 
 void MyWindow::onOpen() {
-	fileDialog.setFileMode(QFileDialog::ExistingFile);
-	fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
-	if (fileDialog.exec() != QDialog::Accepted) return;
-	loadFile(fileDialog.selectedFiles().first());
+	fileDialog->setFileMode(QFileDialog::ExistingFile);
+	fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
+	if (fileDialog->exec() != QDialog::Accepted) return;
+	loadFile(fileDialog->selectedFiles().first());
 }
 
 void MyWindow::onCopy() {
@@ -135,14 +139,19 @@ bool MyWindow::loadFile(const QString name) {
 
 void MyWindow::setImage(const QImage &newImage) {
 	image = newImage;
-	imageLabel.setPixmap(QPixmap::fromImage(image));
-	imageLabel.adjustSize();
+	imageLabel->setPixmap(QPixmap::fromImage(image));
+	imageLabel->adjustSize();
 }
 
 int main(int argc, char** argv) {
+	puts("1");
 	QApplication app {argc, argv};
+	puts("2");
 	MyWindow window {};
+	puts("3");
 	window.show(); //snow
+	puts("4");
+	//exit(0);
 	return app.exec();
 	/*
 	loadFile(argv[1]);
@@ -158,6 +167,5 @@ int main(int argc, char** argv) {
 	
 	setImage(*image);
 
-	window->show();
-	return app.exec();*/
+	*/
 }

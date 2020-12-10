@@ -53,4 +53,4 @@
 #include <QClipboard>
 #include <stdio.h>
 
-#include <lua5.3/lua.hpp>
+//#include <lua5.3/lua.hpp>

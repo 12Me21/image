@@ -18,17 +18,18 @@ class MyWindow : public QMainWindow {
 public:
 	MyWindow();
 
+private:
 	QImage image;
-	QImage previewImage;
+	//QImage previewImage;
 
-	QScrollArea scrollArea;
-	QLabel imageLabel;
+	QScrollArea *scrollArea;
+	QLabel *imageLabel;
 
 	QClipboard* clipboard;
 	
 	void setImage(const QImage &);
 	
-	QFileDialog fileDialog;
+	QFileDialog* fileDialog;
 	bool saveAsFile(const QString);
 	bool loadFile(const QString);
 	
@@ -44,4 +45,15 @@ public:
 	void onCopy();
 	QAction* pasteAct;
 	void onPaste();
+};
+
+class Lua {
+private:
+	lua_State* L;
+public:
+	Lua();
+	~Lua();
+	int loadFile(char*);
+	int run();
+	void openLibs();
 };
