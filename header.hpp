@@ -14,23 +14,32 @@
 
 #include <lua5.3/lua.hpp>
 
+class SharedResources {
+private:
+	QFileDialog* _fileDialog = NULL;
+public:
+	QFileDialog* fileDialog();
+	QApplication* app;
+};
+
 class MyWindow : public QMainWindow {
 	Q_OBJECT
 public:
-	MyWindow();
+	MyWindow(SharedResources*);
 
 private:
+	SharedResources* share;
+	
 	QImage image;
 	//QImage previewImage;
 
-	QScrollArea *scrollArea;
-	QLabel *imageLabel;
+	QScrollArea* scrollArea;
+	QLabel* imageLabel;
 
 	QClipboard* clipboard;
 	
 	void setImage(const QImage &);
 	
-	QFileDialog* fileDialog;
 	bool saveAsFile(const QString);
 	bool loadFile(const QString);
 	

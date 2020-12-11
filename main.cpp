@@ -1,6 +1,12 @@
 #include "header.hpp"
 ;
 
+QFileDialog* SharedResources::fileDialog() {
+	if (_fileDialog)
+		return _fileDialog;
+	return _fileDialog = new QFileDialog();
+}
+
 /*void setImage(QImage& newImage) {
 	image = new QImage(newImage);
 	label->setPixmap(QPixmap::fromImage(*image));
@@ -68,8 +74,7 @@ fail:
 }*/
 
 
-MyWindow::MyWindow() : clipboard {QGuiApplication::clipboard()} {
-	//fileDialog = new QFileDialog(this);
+MyWindow::MyWindow(SharedResources *share) : share {share}, clipboard {QGuiApplication::clipboard()} {
 	scrollArea = new QScrollArea();
 	imageLabel = new QLabel();
 	
@@ -119,23 +124,25 @@ void timer(const char *message = NULL) {
 
 void MyWindow::onWindow() {
 	timer();
-	auto x = new MyWindow();
+	auto x = new MyWindow(share);
 	x->show();
 	timer("window created");
 }
 
 void MyWindow::onSaveAs() {
-	fileDialog->setFileMode(QFileDialog::AnyFile);
-	fileDialog->setAcceptMode(QFileDialog::AcceptSave);
-	if (fileDialog->exec() != QDialog::Accepted) return;
-	saveAsFile(fileDialog->selectedFiles().first());
+	auto dialog = share->fileDialog();
+	dialog->setFileMode(QFileDialog::AnyFile);
+	dialog->setAcceptMode(QFileDialog::AcceptSave);
+	if (dialog->exec() != QDialog::Accepted) return;
+	saveAsFile(dialog->selectedFiles().first());
 }
 
 void MyWindow::onOpen() {
-	fileDialog->setFileMode(QFileDialog::ExistingFile);
-	fileDialog->setAcceptMode(QFileDialog::AcceptOpen);
-	if (fileDialog->exec() != QDialog::Accepted) return;
-	loadFile(fileDialog->selectedFiles().first());
+	auto dialog = share->fileDialog();
+	dialog->setFileMode(QFileDialog::ExistingFile);
+	dialog->setAcceptMode(QFileDialog::AcceptOpen);
+	if (dialog->exec() != QDialog::Accepted) return;
+	loadFile(dialog->selectedFiles().first());
 }
 
 void MyWindow::onCopy() {
@@ -175,19 +182,20 @@ void MyWindow::setImage(const QImage &newImage) {
 }
 
 int main(int argc, char** argv) {
+	SharedResources shared;
 	timer();
-	QApplication app {argc, argv};
+	shared.app = new QApplication(argc, argv);
 	timer("App created");
 
 	timer();
-	MyWindow window {};
+	MyWindow window {&shared};
 	timer("Initial window created");
 
 	timer();
 	window.show(); //snow
 	timer("initial window shown");
 	
-	return app.exec();
+	return shared.app->exec();
 	/*
 	loadFile(argv[1]);
 
