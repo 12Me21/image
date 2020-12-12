@@ -2,25 +2,7 @@
 #include "_window.h"
 #include "timer.hpp"
 
-/*void setImage(QImage& newImage) {
-	image = new QImage(newImage);
-	label->setPixmap(QPixmap::fromImage(*image));
-	label->adjustSize();
-	scroll->setVisible(true);
-}
-
-bool loadFile(const QString &name) {
-	QImageReader reader {name};
-	reader.setAutoTransform(true);
-	auto image = reader.read();
-	if (image.isNull()) {
-		return false;
-	}
-	image2 = image.copy();
-	setImage(image);
-	return true;
-}
-
+/*
 void runLua(const char* filename) {
 	puts("running lua");
 	puts(filename);

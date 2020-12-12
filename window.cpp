@@ -11,12 +11,14 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QScrollArea>
+#include <stdio.h>
+#include "_lua.h"
 class MyWindow : public QMainWindow {
 	Q_OBJECT
 private:
 	SharedResources* share;
 	QImage image;
-	//QImage previewImage;
+	QImage previewImage;
 	QScrollArea* scrollArea;
 	QLabel* imageLabel;
 	QClipboard* clipboard;
@@ -28,6 +30,7 @@ private:
 	QAction* copyAct;
 	QAction* pasteAct;
 	QAction* windowAct;
+	QAction* runAct;
 public:
 };
 #endif
@@ -59,6 +62,9 @@ _::MyWindow(SharedResources *share) : share {share}, clipboard {QGuiApplication:
 	fileMenu->addSeparator();
 	windowAct = fileMenu->addAction(tr("&Window"), this, &_::onWindow);
 	windowAct->setShortcut(tr("Ctrl+N"));
+
+	fileMenu->addSeparator();
+	runAct = fileMenu->addAction(tr("&Run"), this, &_::onRun);
 }
 
 void _::onWindow() {
@@ -117,4 +123,31 @@ void _::setImage(const QImage &newImage) {
 	image = newImage;
 	imageLabel->setPixmap(QPixmap::fromImage(image));
 	imageLabel->adjustSize();
+}
+
+void _::runLua(const char* filename) {
+	puts("running lua");
+	puts(filename);
+	Lua L {};
+	L.openLibs();
+	int status = L.loadFile(filename);
+	if (status) {
+		puts("error loading lua");
+		return;
+	}
+	status = L.run();
+	if (status) {
+		puts("error running lua");
+		return;
+	}
+	L.processImage(&image, &image);
+	setImage(image);
+}
+
+void _::onRun() {
+	auto dialog = share->fileDialog();
+	dialog->setFileMode(QFileDialog::ExistingFile);
+	dialog->setAcceptMode(QFileDialog::AcceptOpen);
+	if (dialog->exec() != QDialog::Accepted) return;
+	runLua(dialog->selectedFiles().first().toUtf8().data());
 }
