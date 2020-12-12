@@ -2,9 +2,8 @@
 #include "timer.hpp"
 #define _ MyWindow
 #if 0
-#include <QApplication>
+#include "_sharedresources.h"
 #include <QClipboard>
-#include <QFileSystemWatcher>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QLabel>
@@ -12,14 +11,6 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QScrollArea>
-class SharedResources {
-private:
-	QFileDialog* _fileDialog = NULL;
-public:
-	QFileDialog* fileDialog();
-	QApplication* app;
-};
-
 class MyWindow : public QMainWindow {
 	Q_OBJECT
 private:
@@ -41,14 +32,6 @@ public:
 };
 #endif
 
-QFileDialog* SharedResources::fileDialog() {
-	if (_fileDialog)
-		return _fileDialog;
-	return _fileDialog = new QFileDialog();
-}
-
-_::~MyWindow() {
-}
 _::MyWindow(SharedResources *share) : share {share}, clipboard {QGuiApplication::clipboard()} {
 	scrollArea = new QScrollArea();
 	imageLabel = new QLabel();

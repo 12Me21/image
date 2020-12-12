@@ -5,3 +5,4 @@ a.out
 *.o
 moc_*.cpp
 _*.h
+.temp
