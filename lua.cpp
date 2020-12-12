@@ -1,20 +1,30 @@
-#include "header.hpp"
+#include "_lua.h"
+#define _ Lua
+#if 0
+#include <lua5.3/lua.hpp>
+class Lua {
+private:
+	lua_State* L;
+public:
+};
+#endif
 
-Lua::Lua() {
+_::Lua() {
 	L = luaL_newstate();
 }
-Lua::~Lua() {
+
+_::~Lua() {
 	lua_close(L);
 }
 
-int Lua::loadFile(char* name) {
+int _::loadFile(char* name) {
 	return luaL_loadfile(L, name);
 }
 
-int Lua::run() {
+int _::run() {
 	return lua_pcall(L, 0, LUA_MULTRET, 0);
 }
 
-void Lua::openLibs() {
+void _::openLibs() {
 	luaL_openlibs(L);
 }

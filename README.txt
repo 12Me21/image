@@ -1,6 +1,6 @@
 Dependencies:
-- Qt 5
+- Qt 5 (or 6)
 - Lua 5.3
 (apt packages: `qt5-common`, `liblua5.3`)
 
-Run `qmake` once after downloading, then run `make` to compile (will be slow the first time!).
+IMPORTANT: run `make -f initial.make` FIRST

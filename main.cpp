@@ -1,11 +1,6 @@
-#include "header.hpp"
-;
-
-QFileDialog* SharedResources::fileDialog() {
-	if (_fileDialog)
-		return _fileDialog;
-	return _fileDialog = new QFileDialog();
-}
+#include <stdio.h>
+#include "_window.h"
+#include "timer.hpp"
 
 /*void setImage(QImage& newImage) {
 	image = new QImage(newImage);
@@ -72,114 +67,6 @@ fail:
 	}
 	return 0;
 }*/
-
-
-MyWindow::MyWindow(SharedResources *share) : share {share}, clipboard {QGuiApplication::clipboard()} {
-	scrollArea = new QScrollArea();
-	imageLabel = new QLabel();
-	
-	scrollArea->setBackgroundRole(QPalette::Dark);
-	setCentralWidget(scrollArea);
-	
-	imageLabel->setBackgroundRole(QPalette::Base);
-	imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-	imageLabel->setScaledContents(true);
-	scrollArea->setWidget(imageLabel);
-
-	fileMenu = menuBar()->addMenu(tr("&File"));
-	openAct = fileMenu->addAction(tr("&Open..."), this, &MyWindow::onOpen);
-	openAct->setShortcut(tr("Ctrl+O"));
-	saveAsAct = fileMenu->addAction(tr("&Save As..."), this, &MyWindow::onSaveAs);
-	saveAsAct->setShortcut(tr("Ctrl+S"));
-
-	fileMenu->addSeparator();
-	copyAct = fileMenu->addAction(tr("&Copy"), this, &MyWindow::onCopy);
-	copyAct->setShortcut(tr("Ctrl+C"));
-	pasteAct = fileMenu->addAction(tr("&Paste"), this, &MyWindow::onPaste);
-	pasteAct->setShortcut(tr("Ctrl+V"));
-
-	fileMenu->addSeparator();
-	windowAct = fileMenu->addAction(tr("&Window"), this, &MyWindow::onWindow);
-	windowAct->setShortcut(tr("Ctrl+N"));
-}
-
-void timer(const char *message = NULL) {
-	//ow
-	using namespace std;
-	using namespace chrono;
-	static time_point<high_resolution_clock, nanoseconds> start {nanoseconds(-1)};
-	if (start.time_since_epoch().count() < 0) {
-		if (message)
-			printf("%s",message);
-		start = high_resolution_clock::now();
-	} else {
-		auto x = high_resolution_clock::now().time_since_epoch().count() - start.time_since_epoch().count();
-		if (message)
-			printf("%s",message);
-		printf(" %.3fms\n", (float)x/1000000);
-		start = (typeof(start))nanoseconds(-1);
-		
-	}
-}
-
-void MyWindow::onWindow() {
-	timer();
-	auto x = new MyWindow(share);
-	x->show();
-	timer("window created");
-}
-
-void MyWindow::onSaveAs() {
-	auto dialog = share->fileDialog();
-	dialog->setFileMode(QFileDialog::AnyFile);
-	dialog->setAcceptMode(QFileDialog::AcceptSave);
-	if (dialog->exec() != QDialog::Accepted) return;
-	saveAsFile(dialog->selectedFiles().first());
-}
-
-void MyWindow::onOpen() {
-	auto dialog = share->fileDialog();
-	dialog->setFileMode(QFileDialog::ExistingFile);
-	dialog->setAcceptMode(QFileDialog::AcceptOpen);
-	if (dialog->exec() != QDialog::Accepted) return;
-	loadFile(dialog->selectedFiles().first());
-}
-
-void MyWindow::onCopy() {
-	clipboard->setImage(image);
-}
-
-void MyWindow::onPaste() {
-	if (const QMimeData* mimeData = clipboard->mimeData())
-		if (mimeData->hasImage())
-			setImage(qvariant_cast<QImage>(mimeData->imageData()));
-}
-
-
-bool MyWindow::saveAsFile(const QString name) {
-	QImageWriter writer {name};
-	if (!writer.write(image)) {
-		QMessageBox::warning(this, "Save Error", tr("Can't save file: %1").arg(writer.errorString()));
-		return false;
-	}
-	return true;
-}
-bool MyWindow::loadFile(const QString name) {
-	QImageReader reader {name};
-	reader.setAutoTransform(true); //handle rotation metadata
-	setImage(reader.read());
-	if (image.isNull()) {
-		QMessageBox::warning(this, "Load Error", tr("Can't load file: %1").arg(reader.errorString()));
-		return false;
-	}
-	return true;
-}
-
-void MyWindow::setImage(const QImage &newImage) {
-	image = newImage;
-	imageLabel->setPixmap(QPixmap::fromImage(image));
-	imageLabel->adjustSize();
-}
 
 int main(int argc, char** argv) {
 	SharedResources shared;
