@@ -1,8 +1,10 @@
+include project.pro
+
 # this is required because
 # qmake is dumb
-initial: _window.h _lua.h
+initial: $(HEADERS)
 	qmake
-	make
+	$(MAKE)
 
 _%.h: %.cpp
 	lua5.3 hpp.lua $@ <$<
