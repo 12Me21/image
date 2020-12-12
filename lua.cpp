@@ -30,7 +30,7 @@ void _::openLibs() {
 	luaL_openlibs(L);
 }
 
-void _::processImage(QImage* input, QImage* output) {
+void _::processImage(const QImage* input, QImage* output) {
 	int width = input->width();
 	int height = input->height();
 	for(int j=0;j<height;j++) {

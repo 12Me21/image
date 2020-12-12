@@ -6,3 +6,4 @@ a.out
 moc_*.cpp
 _*.h
 .temp
+old

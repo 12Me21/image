@@ -1,41 +1,27 @@
+#define _ MyWindow
 #include "_window.h"
 #include "timer.hpp"
-#define _ MyWindow
-#if 0
-#include "_sharedresources.h"
-#include <QClipboard>
-#include <QImageReader>
-#include <QImageWriter>
-#include <QLabel>
+#if 0////////////////////////////////////////////////
 #include <QMainWindow>
+#include <QLabel>
 #include <QMenuBar>
-#include <QMessageBox>
 #include <QScrollArea>
-#include <stdio.h>
+#include "_sharedresources.h"
 #include "_lua.h"
 class MyWindow : public QMainWindow {
 	Q_OBJECT
 private:
 	SharedResources* share;
-	QImage image;
-	QImage previewImage;
+	QImage* image;
 	QScrollArea* scrollArea;
 	QLabel* imageLabel;
-	QClipboard* clipboard;
-	/////////////
-	// Top Menu
 	QMenu* fileMenu;
-	QAction* openAct;
-	QAction* saveAsAct;
-	QAction* copyAct;
-	QAction* pasteAct;
-	QAction* windowAct;
-	QAction* runAct;
+	QAction* openAct, *saveAsAct, *copyAct, *pasteAct, *windowAct, *runAct;
 public:
 };
-#endif
+#endif///////////////////////////////////////////////
 
-_::MyWindow(SharedResources *share) : share {share}, clipboard {QGuiApplication::clipboard()} {
+_::MyWindow(SharedResources *share): share {share} {
 	scrollArea = new QScrollArea();
 	imageLabel = new QLabel();
 	
@@ -48,7 +34,7 @@ _::MyWindow(SharedResources *share) : share {share}, clipboard {QGuiApplication:
 	scrollArea->setWidget(imageLabel);
 
 	fileMenu = menuBar()->addMenu(tr("&File"));
-	openAct = fileMenu->addAction(tr("&Open..."), this, &_::onOpen);
+	openAct = addAction(fileMenu, "&Open...", &_::onOpen);
 	openAct->setShortcut(tr("Ctrl+O"));
 	saveAsAct = fileMenu->addAction(tr("&Save As..."), this, &_::onSaveAs);
 	saveAsAct->setShortcut(tr("Ctrl+S"));
@@ -65,6 +51,8 @@ _::MyWindow(SharedResources *share) : share {share}, clipboard {QGuiApplication:
 
 	fileMenu->addSeparator();
 	runAct = fileMenu->addAction(tr("&Run"), this, &_::onRun);
+
+	setImage(NULL);
 }
 
 void _::onWindow() {
@@ -75,79 +63,65 @@ void _::onWindow() {
 }
 
 void _::onSaveAs() {
-	auto dialog = share->fileDialog();
-	dialog->setFileMode(QFileDialog::AnyFile);
-	dialog->setAcceptMode(QFileDialog::AcceptSave);
-	if (dialog->exec() != QDialog::Accepted) return;
-	saveAsFile(dialog->selectedFiles().first());
+	share->fileDialog()->saveImage(image);
 }
 
 void _::onOpen() {
-	auto dialog = share->fileDialog();
-	dialog->setFileMode(QFileDialog::ExistingFile);
-	dialog->setAcceptMode(QFileDialog::AcceptOpen);
-	if (dialog->exec() != QDialog::Accepted) return;
-	loadFile(dialog->selectedFiles().first());
+	setImage(share->fileDialog()->loadImage());
 }
 
 void _::onCopy() {
-	clipboard->setImage(image);
+	if (image)
+		share->setClipboardImage(image);
 }
 
 void _::onPaste() {
-	if (const QMimeData* mimeData = clipboard->mimeData())
-		if (mimeData->hasImage())
-			setImage(qvariant_cast<QImage>(mimeData->imageData()));
+	auto image = share->getClipboardImage();
+	if (image)
+		setImage(image);
 }
 
-bool _::saveAsFile(const QString name) {
-	QImageWriter writer {name};
-	if (!writer.write(image)) {
-		QMessageBox::warning(this, "Save Error", tr("Can't save file: %1").arg(writer.errorString()));
-		return false;
-	}
-	return true;
-}
-bool _::loadFile(const QString name) {
-	QImageReader reader {name};
-	reader.setAutoTransform(true); //handle rotation metadata
-	setImage(reader.read());
-	if (image.isNull()) {
-		QMessageBox::warning(this, "Load Error", tr("Can't load file: %1").arg(reader.errorString()));
-		return false;
-	}
-	return true;
-}
-
-void _::setImage(const QImage &newImage) {
+void _::setImage(QImage* newImage) {
 	image = newImage;
-	imageLabel->setPixmap(QPixmap::fromImage(image));
-	imageLabel->adjustSize();
+	if (!image) {
+		imageLabel->hide();
+	} else {
+		imageLabel->setPixmap(QPixmap::fromImage(*image));
+		imageLabel->adjustSize();
+		imageLabel->show();
+	}
+	saveAsAct->setEnabled(image != NULL);
 }
 
 void _::runLua(const char* filename) {
 	puts("running lua");
 	puts(filename);
-	Lua L {};
-	L.openLibs();
-	int status = L.loadFile(filename);
+	timer();
+	Lua lua {};
+	lua.openLibs();
+	int status = lua.loadFile(filename);
 	if (status) {
 		puts("error loading lua");
 		return;
 	}
-	status = L.run();
+	status = lua.run();
 	if (status) {
 		puts("error running lua");
 		return;
 	}
-	L.processImage(&image, &image);
+	lua.processImage(image, image);
 	setImage(image);
+	timer("Ran lua script");
 }
 
 void _::onRun() {
-	auto dialog = share->fileDialog();
+	/*auto dialog = share->fileDialog();
 	dialog->setFileMode(QFileDialog::ExistingFile);
 	dialog->setAcceptMode(QFileDialog::AcceptOpen);
 	if (dialog->exec() != QDialog::Accepted) return;
-	runLua(dialog->selectedFiles().first().toUtf8().data());
+	runLua(dialog->selectedFiles().first().toUtf8().data());*/
+}
+
+QAction* _::addAction(QMenu* menu, const char* text, void (MyWindow::* func)()) {
+	return menu->addAction(tr(text), this, func);
 }
