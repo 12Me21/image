@@ -50,7 +50,7 @@ _::MyWindow(SharedResources *share): share {share} {
 	windowAct->setShortcut(tr("Ctrl+N"));
 
 	fileMenu->addSeparator();
-	runAct = fileMenu->addAction(tr("&Run"), this, &_::onRun);
+	runAct = fileMenu->addAction(tr("&Run Script..."), this, &_::onRun);
 
 	setImage(NULL);
 }
@@ -67,7 +67,9 @@ void _::onSaveAs() {
 }
 
 void _::onOpen() {
-	setImage(share->fileDialog()->loadImage());
+	auto image = share->fileDialog()->loadImage();
+	if (image)
+		setImage(image);
 }
 
 void _::onCopy() {
@@ -93,13 +95,12 @@ void _::setImage(QImage* newImage) {
 	saveAsAct->setEnabled(image != NULL);
 }
 
-void _::runLua(const char* filename) {
+void _::runLua(QString filename) {
 	puts("running lua");
-	puts(filename);
 	timer();
 	Lua lua {};
 	lua.openLibs();
-	int status = lua.loadFile(filename);
+	int status = lua.loadFile(filename.toUtf8().data());
 	if (status) {
 		puts("error loading lua");
 		return;
@@ -115,13 +116,13 @@ void _::runLua(const char* filename) {
 }
 
 void _::onRun() {
-	/*auto dialog = share->fileDialog();
-	dialog->setFileMode(QFileDialog::ExistingFile);
-	dialog->setAcceptMode(QFileDialog::AcceptOpen);
-	if (dialog->exec() != QDialog::Accepted) return;
-	runLua(dialog->selectedFiles().first().toUtf8().data());*/
+	auto filename = share->fileDialog()->selectScript();
+	if (!filename.isNull())
+		runLua(filename);
 }
 
 QAction* _::addAction(QMenu* menu, const char* text, void (MyWindow::* func)()) {
 	return menu->addAction(tr(text), this, func);
 }
+
+

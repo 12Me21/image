@@ -1,18 +1,21 @@
-local lines = io.lines()
+io.output(io.stderr)
+local lines = io.open(arg[1]..".cpp"):lines()
 local name
 local out="// Automatically generated header file~!\n"
--- find class name
+
+-- Find class name
 for l in lines do
-	_, _, name = l:find("#define _ ([%w_]+)")
+	_, _, name = l:find("#define _ ([A-Za-z0-9_]+)")
 	if name then break end
 end
 if not name then
-	io.stderr:write("name not found\n")
+	print("[c++ header generator] ERROR: Class name not found!")
 	os.exit(1)
 	return
 end
-io.stderr:write("got name: "..name.."\n")
--- look for #if 0 block
+print("[c++ header generator] Got class name: `"..name.."`")
+
+-- Look for #if 0 block
 for l in lines do
 	if l:sub(1,5)=="#if 0" then break end
 end
@@ -24,6 +27,7 @@ for l in lines do
 	if l:sub(1,6)=="#endif" then break end
 	out=out..l2.."\n"
 end
+
 -- find function definitions
 for l in lines do
 	l, num = l:gsub("(.*)_::(.*)", "%1%2")
@@ -34,11 +38,19 @@ for l in lines do
 	end
 end
 out=out.."};\n"
-local f = io.open(arg[1], "r")
+
+-- write to `_<name>.h`
+local outfile = "_"..arg[1]..".h"
+local f = io.open(outfile, "r")
 if f and out==f:read("*all") then
-	print("(header file unchanged)")
+	print("[c++ header generator] (`"..outfile.."` was unchanged)")
 	return
 end
-local f = io.open(arg[1], "w")
-f:write(out)
+local f = io.open(outfile, "w")
+local status, err = f:write(out)
+if not status then
+	print("[c++ header generator] Failed to write header: "..err)
+	os.exit(1)
+end
 f:close()
+print("[c++ header generator] Wrote `"..outfile.."`")

@@ -1,6 +1,6 @@
 #define _ FileDialog
 #include "_filedialog.h"
-#if 0////////////////////////////////////////////////
+#if 0
 #include <QFileDialog>
 #include <QImage>
 #include <QImageReader>
@@ -15,7 +15,11 @@ bool _::saveImage(const QImage* image) {
 	setFileMode(_::AnyFile);
 	setAcceptMode(_::AcceptSave);
 	if (exec() != _::Accepted) return false;
-	QImageWriter writer {selectedFiles().first()};
+	auto name = selectedFiles().first();
+	// this should probably check if name is empty too
+	if (!name.contains("."))
+		name += ".png";
+	QImageWriter writer {name};
 	if (!writer.write(*image)) {
 		QMessageBox::warning(this, "Save Error", tr("Can't save file: %1").arg(writer.errorString()));
 		return false;
@@ -35,4 +39,12 @@ QImage* _::loadImage() {
 		return NULL;
 	}
 	return new QImage(image);
+}
+
+QString _::selectScript() {
+	setFileMode(_::ExistingFile);
+	setAcceptMode(_::AcceptOpen);
+	setNameFilter(tr("Lua Script (*.lua)"));
+	if (exec() != _::Accepted) return QString();
+	return selectedFiles().first();
 }
