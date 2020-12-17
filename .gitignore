@@ -1,5 +1,5 @@
 Makefile
 .qmake.stash
 a.out
-temp
+temp/*
 old
