@@ -1,15 +1,15 @@
-#include "_lua.h"
 #define _ Lua
+#include "temp/lua.h++"
+
 #if 0
 #include <lua5.3/lua.hpp>
 #include <QImage>
-class Lua {
+class;
 private:
-	lua_State* L;
+lua_State* L;
 public:
-};
 #endif
-
+
 _::Lua() {
 	L = luaL_newstate();
 }

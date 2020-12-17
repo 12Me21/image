@@ -1,18 +1,19 @@
 #define _ SharedResources
-#include "_sharedresources.h"
-#include "timer.hpp"
-#if 0////////////////////////////////////////////////
+#include "temp/sharedresources.h++"
+
+#if 0
 #include <QApplication>
 #include <QClipboard>
-#include "_filedialog.h"
-class SharedResources {
+#include "temp/filedialog.h++"
+class;
 private:
-	FileDialog* _fileDialog = NULL;
+FileDialog* _fileDialog = NULL;
 public:
-	QApplication* app;
-	QClipboard* clipboard;
-};
-#endif///////////////////////////////////////////////
+QApplication* app;
+QClipboard* clipboard;
+#endif
+
+#include "timer.h++"
 
 _::SharedResources(): clipboard {QGuiApplication::clipboard()} {
 }

@@ -1,16 +1,16 @@
 #define _ FileDialog
-#include "_filedialog.h"
-#if 0
+#include "temp/filedialog.h++"
+
+#if 0
 #include <QFileDialog>
 #include <QImage>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QMessageBox>
-class FileDialog: QFileDialog {
+class: QFileDialog;
 public:
-};
-#endif///////////////////////////////////////////////
-
+#endif
+
 bool _::saveImage(const QImage* image) {
 	setFileMode(_::AnyFile);
 	setAcceptMode(_::AcceptSave);

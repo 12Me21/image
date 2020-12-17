@@ -1,25 +1,27 @@
 #define _ MyWindow
-#include "_window.h"
-#include "timer.hpp"
-#if 0////////////////////////////////////////////////
+#include "temp/window.h++"
+//should capitalize temp to avoid autocomplete collides
+
+#if 0
 #include <QMainWindow>
 #include <QLabel>
 #include <QMenuBar>
 #include <QScrollArea>
-#include "_sharedresources.h"
-#include "_lua.h"
-class MyWindow : public QMainWindow {
-	Q_OBJECT
+#include "temp/sharedresources.h++"
+#include "temp/lua.h++"
+class: public QMainWindow;
+Q_OBJECT
 private:
-	SharedResources* share;
-	QImage* image;
-	QScrollArea* scrollArea;
-	QLabel* imageLabel;
-	QMenu* fileMenu;
-	QAction* openAct, *saveAsAct, *copyAct, *pasteAct, *windowAct, *runAct;
+SharedResources* share;
+QImage* image;
+QScrollArea* scrollArea;
+QLabel* imageLabel;
+QMenu* fileMenu;
+QAction* openAct, *saveAsAct, *copyAct, *pasteAct, *windowAct, *runAct;
 public:
-};
-#endif///////////////////////////////////////////////
+#endif
+
+#include "timer.h++"
 
 _::MyWindow(SharedResources *share): share {share} {
 	scrollArea = new QScrollArea();
@@ -124,5 +126,3 @@ void _::onRun() {
 QAction* _::addAction(QMenu* menu, const char* text, void (MyWindow::* func)()) {
 	return menu->addAction(tr(text), this, func);
 }
-
-

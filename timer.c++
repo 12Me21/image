@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <chrono>
-#include "timer.hpp"
+#include "timer.h++"
 
 void timer(const char *message) {
 	//ow

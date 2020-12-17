@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "_window.h"
-#include "timer.hpp"
+#include "temp/window.h++"
+#include "timer.h++"
 
 int main(int argc, char** argv) {
 	timer();

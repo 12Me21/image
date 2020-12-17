@@ -1,5 +1,5 @@
 io.output(io.stderr)
-local lines = io.open(arg[1]..".cpp"):lines()
+local lines = io.open(arg[1]):lines()
 local name
 local out="// Automatically generated header file~!\n"
 
@@ -19,13 +19,16 @@ print("[c++ header generator] Got class name: `"..name.."`")
 for l in lines do
 	if l:sub(1,5)=="#if 0" then break end
 end
-local last = ""
 -- output contents
 for l in lines do
-	local l2 = last
-	last = l -- hacks to skip last line (closing brace)
-	if l:sub(1,6)=="#endif" then break end
-	out=out..l2.."\n"
+	if l:sub(1,7)=="class;" then
+		out=out.."class "..name.." {"
+	elseif l:sub(1,6)=="class:" then
+		out=out.."class "..name..": "..l:sub(7,-2).." {"
+	else
+		if l:sub(1,6)=="#endif" then break end
+		out=out..l.."\n"
+	end
 end
 
 -- find function definitions
@@ -39,8 +42,8 @@ for l in lines do
 end
 out=out.."};\n"
 
--- write to `_<name>.h`
-local outfile = "_"..arg[1]..".h"
+-- write to arg2
+local outfile = arg[2]
 local f = io.open(outfile, "r")
 if f and out==f:read("*all") then
 	print("[c++ header generator] (`"..outfile.."` was unchanged)")
