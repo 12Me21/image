@@ -1,9 +1,5 @@
 Makefile
 .qmake.stash
-*.gch
 a.out
-*.o
-moc_*.cpp
-_*.h
-.temp
+temp
 old
